@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Ma Boutique</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Le Panier -->
+    <div id="panier">
+        <h2>🛒 Mon Panier</h2>
+        <ul id="articles-panier" class="panier-liste"></ul>
+        <p class="panier-total">Total : <span id="total">0</span> FCFA</p>
+        <button class="btn-whatsapp" onclick="commanderWhatsApp()" id="btn-commander">
+            🚀 Commander la sélection via WhatsApp
+        </button>
+        <p class="selection-hint">✓ Cochez les articles à commander</p>
+    </div>
+
+    <script src="script.js"></script>
+
+</html>
+
+</body>

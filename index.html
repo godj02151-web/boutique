@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Ma Boutique Cosmétique & Élec</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Bienvenue dans ma Boutique</h1>
+
+        <!-- Barre de recherche -->
+        <div class="barre-recherche">
+            <input type="text" id="recherche" placeholder="🔍 Rechercher un produit...">
+        </div>
+
+        <!-- Filtres et actions -->
+        <div class="filtres-container">
+            <div class="filtres">
+                <button class="btn-filtre active" onclick="filtrerProduits('tous')">Tous</button>
+                <button class="btn-filtre" onclick="filtrerProduits('cosmetique')">Cosmétique</button>
+                <button class="btn-filtre" onclick="filtrerProduits('electronique')">Électronique</button>
+                <button class="btn-filtre" onclick="filtrerProduits('promo')">En Promo</button>
+            </div>
+
+            <div class="actions-rapides">
+                <button class="btn-action" onclick="afficherFavorisPopin()">
+                    <span>❤️</span> Favoris <span id="compteur-favoris" class="compteur">0</span>
+                </button>
+                <button class="btn-action" onclick="afficherComparaisonPopin()">
+                    <span>⇄</span> Comparer <span id="compteur-comparaison" class="compteur">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Zone des produits -->
+    <div id="liste-produits" class="grille-produits">
+        <!-- Afficher un loader pendant le chargement -->
+        <div class="loader-container">
+            <div class="spinner"></div>
+            <p>Chargement des produits...</p>
+        </div>
+    </div>
+
+    <!-- Suggestions de produits -->
+    <div id="suggestions" class="suggestions"></div>
+
+    <!-- Fenêtre de Zoom -->
+    <div id="modalZoom" class="modal" onclick="fermerZoom()">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="imgZoom">
+    </div>
+
+    <!-- Modal Détails produit -->
+    <div id="modalDetails" class="modal" onclick="if(event.target===this) this.style.display='none'">
+        <div class="modal-content-details">
+            <span class="close" onclick="document.getElementById('modalDetails').style.display='none'">&times;</span>
+            <div id="detailsContenu"></div>
+        </div>
+    </div>
+
+    <!-- Modal Favoris -->
+    <div id="modalFavoris" class="modal" onclick="if(event.target===this) this.style.display='none'">
+        <div class="modal-content-favoris">
+            <span class="close" onclick="document.getElementById('modalFavoris').style.display='none'">&times;</span>
+            <h2>❤️ Mes Favoris</h2>
+            <div id="liste-favoris"></div>
+        </div>
+    </div>
+
+    <!-- Modal Comparaison -->
+    <div id="modalComparaison" class="modal" onclick="if(event.target===this) this.style.display='none'">
+        <div class="modal-content-comparaison">
+            <span class="close"
+                onclick="document.getElementById('modalComparaison').style.display='none'">&times;</span>
+            <h2>⇄ Comparaison de produits</h2>
+            <div id="comparaisonContenu"></div>
+        </div>
+    </div>
+
+    <div>
+        <button class="btn-whatsapp">
+            <a href="panier.html"> Mon panier</a>
+        </button>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+
+</html>
