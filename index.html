@@ -75,8 +75,7 @@
     <!-- Modal Comparaison -->
     <div id="modalComparaison" class="modal" onclick="if(event.target===this) this.style.display='none'">
         <div class="modal-content-comparaison">
-            <span class="close"
-                onclick="document.getElementById('modalComparaison').style.display='none'">&times;</span>
+            <span class="close" onclick="document.getElementById('modalComparaison').style.display='none'">&times;</span>
             <h2>⇄ Comparaison de produits</h2>
             <div id="comparaisonContenu"></div>
         </div>
@@ -88,7 +87,29 @@
         </button>
     </div>
 
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-ZeoWrELmLvG_Lkmvhku39VaDoGjmcSRCo",
+            authDomain: "ma-boutique-8e167.firebaseapp.com",
+            projectId: "ma-boutique-8e167",
+            storageBucket: "ma-boutique-8e167.firebasestorage.app",
+            messagingSenderId: "931390891016",
+            appId: "1:931390891016:web:ae46e424e8fb6a8a0b5dbd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        window.db = db;
+        window.collection = collection;
+        window.getDocs = getDocs;
+        window.doc = doc;
+        window.getDoc = getDoc;
+    </script>
     <script src="script.js"></script>
 </body>
 
