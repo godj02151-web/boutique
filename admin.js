@@ -20,30 +20,22 @@ function ajouterChampImage() {
     }
 }
 
-// ========== CHARGEMENT DES PRODUITS ==========
+// ========== CHARGEMENT DES PRODUITS DEPUIS FIREBASE ==========
 async function chargerProduits() {
     try {
-        // Essayer de charger depuis localStorage d'abord
-        const savedProduits = localStorage.getItem('catalogue_produits');
-        if (savedProduits) {
-            const data = JSON.parse(savedProduits);
-            produits = data.produits || [];
-            produitsFiltres = [...produits];
-            console.log('Produits chargés depuis localStorage:', produits.length);
-            afficherProduits();
-            mettreAJourStats();
-            return;
-        }
-
-        // Sinon charger depuis le fichier JSON
-        const response = await fetch('produits.json?' + Date.now());
-        const data = await response.json();
-        produits = data.produits || [];
+        const querySnapshot = await getDocs(collection(window.db, "produits"));
+        produits = [];
+        querySnapshot.forEach((doc) => {
+            produits.push({ id: parseInt(doc.id), ...doc.data() });
+        });
+        produits.sort((a, b) => a.id - b.id);
         produitsFiltres = [...produits];
+        console.log('Produits chargés depuis Firebase:', produits.length);
         afficherProduits();
         mettreAJourStats();
     } catch (error) {
-        console.log('Création d\'une nouvelle liste de produits');
+        console.error('Erreur chargement produits:', error);
+        montrerNotification('❌ Erreur de connexion à Firebase', 'error');
         produits = [];
         produitsFiltres = [];
         afficherProduits();
@@ -111,7 +103,6 @@ async function sauvegarderProduit() {
     }
 
     const produit = {
-        id: produitId ? parseInt(produitId) : Date.now(),
         nom: document.getElementById('nom').value,
         description: document.getElementById('description').value,
         prix: parseInt(document.getElementById('prix').value),
@@ -126,20 +117,23 @@ async function sauvegarderProduit() {
         avis: 0
     };
 
-    if (produitId) {
-        const index = produits.findIndex(p => p.id === parseInt(produitId));
-        produits[index] = produit;
-        montrerNotification('✅ Produit modifié avec succès');
-    } else {
-        produits.push(produit);
-        montrerNotification('✅ Nouveau produit ajouté');
+    try {
+        if (produitId) {
+            const produitRef = doc(window.db, "produits", produitId);
+            await updateDoc(produitRef, produit);
+            montrerNotification('✅ Produit modifié avec succès');
+        } else {
+            const nouvelId = Date.now();
+            await setDoc(doc(window.db, "produits", nouvelId.toString()), produit);
+            montrerNotification('✅ Nouveau produit ajouté');
+        }
+        
+        await chargerProduits();
+        resetForm();
+    } catch (error) {
+        console.error('Erreur sauvegarde:', error);
+        montrerNotification('❌ Erreur lors de la sauvegarde', 'error');
     }
-
-    produitsFiltres = [...produits];
-    afficherProduits();
-    mettreAJourStats();
-    resetForm();
-    synchroniserBoutique();
 }
 
 // ========== ÉDITION PRODUIT ==========
@@ -158,7 +152,6 @@ function editerProduit(id) {
     document.getElementById('livraison').value = produit.livraison;
     document.getElementById('note').value = produit.note;
 
-    // Gérer les images
     const container = document.getElementById('images-container');
     container.innerHTML = '';
 
@@ -188,31 +181,36 @@ function editerProduit(id) {
 }
 
 // ========== DUPLIQUER PRODUIT ==========
-function dupliquerProduit(id) {
+async function dupliquerProduit(id) {
     const produit = produits.find(p => p.id === id);
     const nouveauProduit = {
         ...produit,
-        id: Date.now(),
         nom: produit.nom + ' (copie)',
         images: [...produit.images]
     };
-    produits.push(nouveauProduit);
-    produitsFiltres = [...produits];
-    afficherProduits();
-    mettreAJourStats();
-    montrerNotification('📋 Produit dupliqué');
-    synchroniserBoutique();
+    
+    try {
+        const nouvelId = Date.now();
+        await setDoc(doc(window.db, "produits", nouvelId.toString()), nouveauProduit);
+        montrerNotification('📋 Produit dupliqué');
+        await chargerProduits();
+    } catch (error) {
+        console.error('Erreur duplication:', error);
+        montrerNotification('❌ Erreur lors de la duplication', 'error');
+    }
 }
 
 // ========== SUPPRIMER PRODUIT ==========
 async function supprimerProduit(id) {
     if (confirm('Voulez-vous vraiment supprimer ce produit ?')) {
-        produits = produits.filter(p => p.id !== id);
-        produitsFiltres = [...produits];
-        afficherProduits();
-        mettreAJourStats();
-        montrerNotification('🗑️ Produit supprimé');
-        synchroniserBoutique();
+        try {
+            await deleteDoc(doc(window.db, "produits", id.toString()));
+            montrerNotification('🗑️ Produit supprimé');
+            await chargerProduits();
+        } catch (error) {
+            console.error('Erreur suppression:', error);
+            montrerNotification('❌ Erreur lors de la suppression', 'error');
+        }
     }
 }
 
@@ -232,7 +230,6 @@ function resetForm() {
     document.getElementById('produitForm').reset();
     document.getElementById('produitId').value = '';
 
-    // Réinitialiser les images
     const container = document.getElementById('images-container');
     container.innerHTML = `
         <div class="image-upload-row">
@@ -258,30 +255,19 @@ function exporterJSON() {
     montrerNotification('📥 Fichier JSON exporté');
 }
 
-// ========== SYNCHRONISATION BOUTIQUE ==========
+// ========== SYNCHRONISATION ==========
 async function synchroniserBoutique() {
-    // Sauvegarder dans localStorage pour que la boutique puisse lire
-    const dataStr = JSON.stringify({ produits }, null, 2);
-    localStorage.setItem('catalogue_produits', dataStr);
-
-    // Optionnel: essayer de sauvegarder dans le fichier JSON
-    try {
-        // Vous pouvez ajouter ici une API pour sauvegarder sur le serveur
-        montrerNotification('🔄 Produits synchronisés avec la boutique');
-    } catch (error) {
-        console.log('Synchronisation localStorage uniquement');
-        montrerNotification('💾 Produits sauvegardés localement');
-    }
+    montrerNotification('🔄 Déjà synchronisé avec Firebase !');
 }
 
 // ========== NOTIFICATIONS ==========
-function montrerNotification(message) {
-    // Supprimer les anciennes notifications
+function montrerNotification(message, type = "success") {
     const anciennesNotifications = document.querySelectorAll('.notification');
     anciennesNotifications.forEach(n => n.remove());
 
     const notification = document.createElement('div');
     notification.className = 'notification';
+    notification.style.background = type === "error" ? "#e74c3c" : "#27ae60";
     notification.textContent = message;
     document.body.appendChild(notification);
     setTimeout(() => {
@@ -291,5 +277,10 @@ function montrerNotification(message) {
 
 // ========== INITIALISATION ==========
 document.addEventListener('DOMContentLoaded', () => {
-    chargerProduits();
+    const checkFirebase = setInterval(() => {
+        if (window.db) {
+            clearInterval(checkFirebase);
+            chargerProduits();
+        }
+    }, 100);
 });
