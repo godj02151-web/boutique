@@ -5,7 +5,6 @@ let favoris = [];
 let comparaison = [];
 let catalogueProduits = [];
 
-// Rendre catalogueProduits accessible globalement
 window.catalogueProduits = catalogueProduits;
 
 // ========== INITIALISATION ==========
@@ -20,30 +19,27 @@ document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
 });
 
-// ========== CHARGEMENT DES PRODUITS ==========
+// ========== CHARGEMENT DES PRODUITS DEPUIS FIREBASE ==========
 async function chargerProduitsJSON() {
     try {
-        // Essayer de charger depuis le localStorage d'abord (sauvegarde admin)
-        const savedProduits = localStorage.getItem('catalogue_produits');
-        if (savedProduits) {
-            const data = JSON.parse(savedProduits);
-            catalogueProduits = data.produits || [];
-            window.catalogueProduits = catalogueProduits;
-            console.log('Produits chargés depuis localStorage:', catalogueProduits.length);
-            afficherProduits(catalogueProduits);
-            cacherLoader();
+        if (!window.db) {
+            setTimeout(() => chargerProduitsJSON(), 500);
             return;
         }
-
-        // Sinon charger depuis le fichier JSON
-        const response = await fetch('produits.json?' + Date.now());
-        const data = await response.json();
-        catalogueProduits = data.produits || [];
+        
+        const querySnapshot = await getDocs(collection(window.db, "produits"));
+        catalogueProduits = [];
+        querySnapshot.forEach((doc) => {
+            catalogueProduits.push({ id: parseInt(doc.id), ...doc.data() });
+        });
+        catalogueProduits.sort((a, b) => a.id - b.id);
         window.catalogueProduits = catalogueProduits;
-        console.log('Produits chargés depuis fichiers:', catalogueProduits.length);
+        console.log('Produits chargés depuis Firebase:', catalogueProduits.length);
         afficherProduits(catalogueProduits);
         cacherLoader();
-
+        
+        mettreAJourListesApresChargement();
+        
     } catch (error) {
         console.error('Erreur chargement produits:', error);
         catalogueProduits = [];
@@ -51,6 +47,15 @@ async function chargerProduitsJSON() {
         afficherProduits([]);
         afficherErreurChargement();
     }
+}
+
+function mettreAJourListesApresChargement() {
+    const idsExistants = catalogueProduits.map(p => p.id);
+    favoris = favoris.filter(f => idsExistants.includes(f.id));
+    comparaison = comparaison.filter(c => idsExistants.includes(c.id));
+    sauvegarderFavoris();
+    sauvegarderComparaison();
+    mettreAJourCompteurs();
 }
 
 function cacherLoader() {
@@ -90,12 +95,10 @@ function afficherProduits(produitsAfficher) {
         const estFavori = favoris.some(f => f.id === produit.id);
         const estComparaison = comparaison.some(c => c.id === produit.id);
 
-        // Image par défaut ou première image du tableau
         const imagePrincipale = produit.images && produit.images.length > 0
             ? produit.images[0]
             : 'https://via.placeholder.com/300';
 
-        // Calcul du pourcentage de promo
         const pourcentagePromo = produit.promo && produit.prixOriginal > produit.prix
             ? Math.round((1 - produit.prix / produit.prixOriginal) * 100)
             : 0;
@@ -122,7 +125,6 @@ function afficherProduits(produitsAfficher) {
         carte.dataset.promo = produit.promo;
         carte.dataset.nom = produit.nom.toLowerCase();
 
-        // Mini-galerie d'images
         const galerieHTML = produit.images && produit.images.length > 1 ? `
             <div class="mini-galerie">
                 ${produit.images.map((img, index) => `
@@ -288,8 +290,6 @@ function afficherComparaison() {
     }
 
     let html = '<table class="table-comparaison">';
-
-    // En-tête
     html += '<tr><th>Caractéristiques</th>';
     comparaison.forEach(prod => {
         const image = prod.images?.[0] || 'https://via.placeholder.com/100';
@@ -301,7 +301,6 @@ function afficherComparaison() {
     });
     html += '</tr>';
 
-    // Lignes de comparaison
     const lignes = [
         { label: '💰 Prix', valeur: p => p.prix.toLocaleString() + ' FCFA' },
         { label: '⭐ Note', valeur: p => (p.note || 0) + '/5 (' + (p.avis || 0) + ' avis)' },
@@ -320,7 +319,6 @@ function afficherComparaison() {
         html += '</tr>';
     });
 
-    // Ligne action
     html += '<tr><td>🛒 Action</td>';
     comparaison.forEach(prod => {
         const image = prod.images?.[0] || '';
@@ -332,7 +330,6 @@ function afficherComparaison() {
         </td>`;
     });
     html += '</tr>';
-
     html += '</table>';
     contenu.innerHTML = html;
     modal.style.display = "block";
@@ -528,15 +525,15 @@ function suggererProduits(produitId) {
             <h3>Suggestions pour vous :</h3>
             <div class="suggestions-container">
                 ${suggestions.map(s => {
-            const image = s.images?.[0] || 'https://via.placeholder.com/100';
-            return `
+                    const image = s.images?.[0] || 'https://via.placeholder.com/100';
+                    return `
                         <div class="suggestion-item" onclick="afficherDetailsProduit(${s.id})">
                             <img src="${image}" alt="${s.nom}" onerror="this.src='https://via.placeholder.com/100'">
                             <p>${s.nom}</p>
                             <p>${s.prix.toLocaleString()} FCFA</p>
                         </div>
                     `;
-        }).join('')}
+                }).join('')}
             </div>
         `;
     } else {
@@ -613,15 +610,15 @@ function initMobileMenu() {
                 <span>🏠</span>
                 <span>Accueil</span>
             </a>
-            <a href="panier.html" class="menu-mobile-item" onclick="document.getElementById('panier').scrollIntoView({behavior: 'smooth'}); return false;">
+            <a href="panier.html" class="menu-mobile-item">
                 <span>🛒</span>
                 <span>Panier</span>
             </a>
-            <a href="index.html#modalFavoris" class="menu-mobile-item" onclick="afficherFavorisPopin(); return false;">
+            <a href="#" class="menu-mobile-item" onclick="afficherFavorisPopin(); return false;">
                 <span>❤️</span>
                 <span>Favoris</span>
             </a>
-            <a href="index.html#modalComparaison" class="menu-mobile-item" onclick="afficherComparaisonPopin(); return false;">
+            <a href="#" class="menu-mobile-item" onclick="afficherComparaisonPopin(); return false;">
                 <span>⇄</span>
                 <span>Comparer</span>
             </a>
@@ -760,7 +757,6 @@ window.filtrerProduits = function (categorie) {
     afficherProduits(produitsFiltres);
 };
 
-// Exposer toutes les fonctions nécessaires
 window.afficherProduits = afficherProduits;
 window.afficherFavoris = afficherFavoris;
 window.afficherComparaison = afficherComparaison;
