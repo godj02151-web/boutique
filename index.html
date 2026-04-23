@@ -4,13 +4,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Ma Boutique Cosmétique & Élec</title>
+    <title>MEGA SHOP - Boutique Cosmétique & Électronique</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles supplémentaires pour la bannière */
+        .hero-banner {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            border-radius: 20px;
+            margin: 20px auto;
+            padding: 30px 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 100%; }
+            100% { left: 100%; }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+        }
+        
+        .hero-title {
+            font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        .hero-title span {
+            background: linear-gradient(135deg, #ffd89b, #c7e9fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .hero-subtitle {
+            font-size: clamp(0.9rem, 4vw, 1.3rem);
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        
+        .hero-categories {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        .hero-cat {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .hero-cat i {
+            margin-right: 8px;
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #e74c3c;
+            padding: 10px 25px;
+            border-radius: 50px;
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 1.1rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+        
+        .hero-phone {
+            font-size: 1.3rem;
+            font-weight: bold;
+            background: #25D366;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-top: 15px;
+        }
+        
+        .hero-phone a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .hero-delivery {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .hero-delivery span {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Animation d'entrée */
+        .hero-banner {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 
 <body>
     <header>
-        <h1>Bienvenue dans ma Boutique MEGATSIDJIO SHOP</h1>
+        <!-- Bannière professionnelle MEGA SHOP -->
+        <div class="hero-banner">
+            <div class="hero-content">
+                <div class="hero-title">
+                    <span>MEGA</span> SHOP
+                </div>
+                <div class="hero-subtitle">
+                    Votre boutique en ligne n°1 au Togo
+                </div>
+                
+                <div class="hero-categories">
+                    <div class="hero-cat">💄 MAKEUP</div>
+                    <div class="hero-cat">🧴 SKINCARE</div>
+                    <div class="hero-cat">👃 PARFUMS</div>
+                    <div class="hero-cat">📱 SMARTPHONES</div>
+                    <div class="hero-cat">🎧 ÉCOUTEURS</div>
+                    <div class="hero-cat">⌚ MONTRES</div>
+                    <div class="hero-cat">💻 GADGETS</div>
+                </div>
+                
+                <div class="hero-badge">
+                    🔥 PRODUITS DE QUALITÉ - TENDANCES ACTUELLES 🔥
+                </div>
+                
+                <div class="hero-phone">
+                    📞 COMMANDER MAINTENANT : <a href="https://wa.me/22897232547">+228 97 23 25 47</a>
+                </div>
+                
+                <div class="hero-delivery">
+                    <span>🚚 LIVRAISON RAPIDE & SÉCURISÉE</span>
+                    <span>✅ SATISFACTION GARANTIE</span>
+                    <span>💰 PAYEMENT À LA LIVRAISON</span>
+                </div>
+            </div>
+        </div>
+        
+        <h1>Bienvenue dans ma Boutique</h1>
 
         <!-- Barre de recherche -->
         <div class="barre-recherche">
@@ -39,7 +219,6 @@
 
     <!-- Zone des produits -->
     <div id="liste-produits" class="grille-produits">
-        <!-- Afficher un loader pendant le chargement -->
         <div class="loader-container">
             <div class="spinner"></div>
             <p>Chargement des produits...</p>
@@ -83,7 +262,7 @@
 
     <div>
         <button class="btn-whatsapp">
-            <a href="panier.html"> Mon panier</a>
+            <a href="panier.html">🛒 Mon panier</a>
         </button>
     </div>
 
