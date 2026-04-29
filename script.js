@@ -26,7 +26,7 @@ async function chargerProduitsJSON() {
             setTimeout(() => chargerProduitsJSON(), 500);
             return;
         }
-        
+
         const querySnapshot = await getDocs(collection(window.db, "produits"));
         catalogueProduits = [];
         querySnapshot.forEach((doc) => {
@@ -37,9 +37,9 @@ async function chargerProduitsJSON() {
         console.log('Produits chargés depuis Firebase:', catalogueProduits.length);
         afficherProduits(catalogueProduits);
         cacherLoader();
-        
+
         mettreAJourListesApresChargement();
-        
+
     } catch (error) {
         console.error('Erreur chargement produits:', error);
         catalogueProduits = [];
@@ -525,15 +525,15 @@ function suggererProduits(produitId) {
             <h3>Suggestions pour vous :</h3>
             <div class="suggestions-container">
                 ${suggestions.map(s => {
-                    const image = s.images?.[0] || 'https://via.placeholder.com/100';
-                    return `
+            const image = s.images?.[0] || 'https://via.placeholder.com/100';
+            return `
                         <div class="suggestion-item" onclick="afficherDetailsProduit(${s.id})">
                             <img src="${image}" alt="${s.nom}" onerror="this.src='https://via.placeholder.com/100'">
                             <p>${s.nom}</p>
                             <p>${s.prix.toLocaleString()} FCFA</p>
                         </div>
                     `;
-                }).join('')}
+        }).join('')}
             </div>
         `;
     } else {
