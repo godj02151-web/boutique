@@ -127,7 +127,7 @@ async function sauvegarderProduit() {
             await setDoc(doc(window.db, "produits", nouvelId.toString()), produit);
             montrerNotification('✅ Nouveau produit ajouté');
         }
-        
+
         await chargerProduits();
         resetForm();
     } catch (error) {
@@ -188,7 +188,7 @@ async function dupliquerProduit(id) {
         nom: produit.nom + ' (copie)',
         images: [...produit.images]
     };
-    
+
     try {
         const nouvelId = Date.now();
         await setDoc(doc(window.db, "produits", nouvelId.toString()), nouveauProduit);
